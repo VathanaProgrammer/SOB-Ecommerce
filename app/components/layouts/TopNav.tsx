@@ -11,6 +11,13 @@ const TopNav = () => {
   const [location, setLocation] = useState<string>("Fetching location...");
   const [error, setError] = useState<string | null>(null);
 
+  const handleProfileClick = () => {
+    if (user) {
+      router.push("/account");
+    } else {
+      router.push("/sign-in");
+    }
+  };
   useEffect(() => {
     if (!navigator.geolocation) {
       // Wrap setState in a timeout to avoid synchronous update warning
@@ -52,14 +59,13 @@ const TopNav = () => {
 
   return (
     <section className="flex flex-col gap-2">
-
       <div className="flex flex-row justify-between items-center">
         {/* Logo */}
         <h1 className="text-[32px] font-bold main-text">LUXE</h1>
 
         <div className="flex flex-row gap-2">
           <div
-            onClick={() => router.push("/account")}
+            onClick={handleProfileClick}
             className="p-2 flex items-center rounded-[10px] border border-gray-300 cursor-pointer hover:bg-gray-100 transition"
           >
             <Icon

@@ -6,11 +6,8 @@ import axios, { AxiosError } from "axios";
 
 const Page = () => {
   const router = useRouter();
-  const { login, loading, user } = useAuth();
-
-  const [email, setEmail] = useState("");
+  const { login, loading } = useAuth();
   const [phone, setPh] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
 
@@ -19,7 +16,7 @@ const Page = () => {
     setError("");
 
     try {
-      await login(email, password);
+      await login(phone, username);
     } catch (err: AxiosError | unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
         setError("Invalid email or password");
@@ -52,18 +49,18 @@ const Page = () => {
           />
         </div>
 
-        <div className="w-full mt-6">
-          <label className="text-[20px] font-medium text-gray-700">
-            Username
-          </label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your username"
-            className="w-full px-4 min-h-[45px] py-2 border focus:outline-0 rounded-[5px] focus:border-blue-600 mt-2"
-          />
-        </div>
+        {/* <div className="w-full mt-6"> */}
+          {/* <label className="text-[20px] font-medium text-gray-700"> */}
+            {/* Username */}
+          {/* </label> */}
+          {/* <input */}
+            {/* type="text" */}
+            {/* value={username} */}
+            {/* onChange={(e) => setUsername(e.target.value)} */}
+            {/* placeholder="Enter your username" */}
+            {/* className="w-full px-4 min-h-[45px] py-2 border focus:outline-0 rounded-[5px] focus:border-blue-600 mt-2" */}
+          {/* /> */}
+        {/* </div> */}
 
         {/* <div className="w-full mt-6"> */}
         {/* <label className="text-[20px] font-medium text-gray-700">Password</label> */}
@@ -81,7 +78,7 @@ const Page = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full mt-8 bg-gray-700 text-white py-3 rounded-[8px] font-semibold hover:bg-gray-700 active:scale-95 transition"
+          className="w-full mt-8 bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 active:scale-95 transition"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>

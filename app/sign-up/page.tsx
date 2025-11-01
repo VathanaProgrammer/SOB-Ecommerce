@@ -18,19 +18,25 @@ export default function Signup() {
     setMessage("");
 
     try {
-      await api.post(
-        "/register",
-        {
-          phone,
-          username,
-        },
-        { withCredentials: true }
-      );
-      setMessage("Signup successful 🎉");
+      const res = await api.post<{
+        success: boolean;
+        otp: string;
+        message?: string;
+      }>("/register", { phone, username }, { withCredentials: true });
+
+      if (res.data.success) {
+        const otp = res.data.otp; // fake OTP
+        router.push(
+          `/verify-otp?phone=${encodeURIComponent(
+            phone
+          )}&username=${encodeURIComponent(username)}&otp=${otp}`
+        );
+      } else {
+        setMessage(res.data.message || "Failed to generate OTP");
+      }
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        // Axios error
-        setMessage(error.response?.data?.message || "Signup failed ❌");
+        setMessage(error.response?.data?.message || "Something went wrong ❌");
       } else {
         setMessage("Something went wrong ❌");
       }
@@ -64,7 +70,9 @@ export default function Signup() {
 
         {/* Phone */}
         <div className="w-full mt-4">
-          <label className="text-[16px] font-medium text-gray-700">Phone Number</label>
+          <label className="text-[16px] font-medium text-gray-700">
+            Phone Number
+          </label>
           <input
             type="text"
             placeholder="Enter your phone number"
@@ -105,7 +113,10 @@ export default function Signup() {
         <div className="mt-2 w-full">
           <p className="text-center text-[14px] font-medium">
             Already have an account?{" "}
-            <span onClick={() => router.push("/sign-in")} className="text-blue-600 cursor-pointer">
+            <span
+              onClick={() => router.push("/sign-in")}
+              className="text-blue-600 cursor-pointer"
+            >
               Login to your account
             </span>
           </p>

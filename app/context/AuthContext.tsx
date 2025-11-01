@@ -7,14 +7,13 @@ import {
   ReactNode,
 } from "react";
 import api from "@/api/api";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
+  username: string;
   phone?: string | null;
-  profile_url?: string | null;
+  image_url?: string | null;
 }
 
 interface AuthContextType {
@@ -34,6 +33,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const router  = useRouter();
+
   // Fetch user on mount
   useEffect(() => {
     api
@@ -50,22 +51,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   // Login function
-  const login = async (email: string, password: string) => {
+  const login = async (phone: string, username: string) => {
     const res1 = await api.post(
       "/login",
-      { email, password },
+      { phone, username },
       { withCredentials: true }
     );
     console.log("Login response:", res1.data);
-    // after cookie set, fetch user info
-    const res2 = await api.get<User>("/user", { withCredentials: true });
-    setUser(res2.data);
+    if (res1.data.sucess) {
+      router.push('/');
+      // after cookie set, fetch user info
+      const res2 = await api.get<User>("/user", { withCredentials: true });
+      setUser(res2.data);
+      
+    }
   };
   console.log("AuthContext user:", user);
 
   const logout = async () => {
-    await api.post("/logout", {}, { withCredentials: true });
-    setUser(null);
+    const res = await api.post("/logout", {}, { withCredentials: true });
+    if(res.data.sucess){
+      router.push('/sign-in')
+      setUser(null);
+    }
   };
 
   return (

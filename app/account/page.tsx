@@ -1,13 +1,17 @@
 "use client";
 
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import Header from "@/components/layouts/Header";
 import Image from "next/image";
 import Icon from "@/components/Icon";
+import { useAuth } from "@/context/AuthContext";
 
 const Page: React.FC = () => {
+  const { user, logout } = useAuth();
+
   const [profileImage, setProfileImage] = useState<string>(
-    "https://i.pinimg.com/736x/a9/37/4c/a9374c0559c6708ca67248e8b6b34f22.jpg"
+    user?.image_url ||
+      "https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"
   );
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -16,7 +20,9 @@ const Page: React.FC = () => {
   };
 
   const handleButtonClick = () => {
-    const input = document.getElementById("image_url") as HTMLInputElement | null;
+    const input = document.getElementById(
+      "image_url"
+    ) as HTMLInputElement | null;
     input?.click();
   };
 
@@ -65,6 +71,13 @@ const Page: React.FC = () => {
     },
   ];
 
+useEffect(() => {
+  if (user?.image_url) {
+    const timeout = setTimeout(() => setProfileImage(user.image_url || "https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"), 0);
+    return () => clearTimeout(timeout);
+  }
+}, [user?.image_url]);
+
   return (
     <div className="flex flex-col items-center min-h-screen">
       <div className="w-full max-w-[440px] min-h-screen">
@@ -107,8 +120,15 @@ const Page: React.FC = () => {
           </div>
 
           <div className="mt-3 text-center">
-            <p className="font-semibold text-lg text-gray-900">Sieng Vathana</p>
-            <p className="text-gray-500 text-sm">vathana@example.com</p>
+            {user ? (
+              <>
+                <p className="font-semibold text-lg text-gray-900">
+                  {user.username}
+                </p>
+              </>
+            ) : (
+              <p className="text-gray-500 text-sm">Guest</p>
+            )}
           </div>
         </div>
 
@@ -120,7 +140,12 @@ const Page: React.FC = () => {
               className="bg-gray-300 p-4 rounded-2xl shadow-sm flex flex-col gap-1 hover:shadow-md transition"
             >
               <div className="flex items-center gap-2">
-                <Icon icon={item.icon} width={22} height={22} className="text-gray-700" />
+                <Icon
+                  icon={item.icon}
+                  width={22}
+                  height={22}
+                  className="text-gray-700"
+                />
                 <h3 className="font-medium text-gray-800">{item.title}</h3>
               </div>
               <p className="text-sm text-gray-500">{item.desc}</p>
@@ -133,7 +158,7 @@ const Page: React.FC = () => {
 
         {/* Logout */}
         <div className="px-4 pb-10">
-          <button className="w-full bg-red-500 text-white py-2 rounded-[5px] font-semibold hover:bg-red-600 transition">
+          <button onClick={logout} className="w-full bg-red-500 text-white py-2 rounded-[5px] font-semibold hover:bg-red-600 transition">
             Logout
           </button>
         </div>

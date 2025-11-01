@@ -1,6 +1,5 @@
 import React from "react";
 import Icon from "../Icon";
-import { ICONS } from "@/constants/icons";
 
 const AnotherTopBar = () => {
   return (

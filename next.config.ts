@@ -7,26 +7,31 @@ const nextConfig: NextConfig = {
   // images: {
   //   domains: ["example.com"], // add image host domains
   // },
-  
+
   images: {
-    domains: ['127.0.0.1', 'localhost'],
+    domains: ["127.0.0.1", "localhost"],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com", 
+        hostname: "images.unsplash.com",
       },
       {
         protocol: "https",
-        hostname: "e7.pngegg.com"
-      },{
-        hostname: "i.pinimg.com"
+        hostname: "www.shutterstock.com",
       },
       {
-        hostname: "images.unsplash.com"
+        protocol: "https",
+        hostname: "e7.pngegg.com",
       },
       {
-        hostname: "upload.wikimedia.org"
-      }
+        hostname: "i.pinimg.com",
+      },
+      {
+        hostname: "images.unsplash.com",
+      },
+      {
+        hostname: "upload.wikimedia.org",
+      },
     ],
   },
 };
