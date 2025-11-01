@@ -1,57 +1,43 @@
-import React from "react";
+"use client";
 import Icon from "../Icon";
-import { ICONS } from "@/constants/icons";
+import { useRouter } from "next/navigation";
 
 const BottomNav = () => {
+  const router = useRouter();
+
   return (
-    <section className="flex flex-row justify-between">
-      <div className="flex flex-col p-2 items-center">
-        <Icon
-          className="text-[#313131]"
-          icon="solar:home-2-linear"
-          width={28}
-          height={28}
-        />{" "}
-        <p className="text-[14px] font-medium">Home</p>
-      </div>
-      <div className="flex flex-col p-2 items-center">
-        <Icon
-          className="text-[#313131]"
-          icon="solar:chat-dots-linear"
-          width={28}
-          height={28}
-        />{" "}
-        <p className="text-[14px] font-medium">Chat</p>
-      </div>
-      <div className="flex flex-col p-2 items-center">
-        <Icon
-          className="text-[#313131]"
-          icon="solar:chat-dots-linear"
-          width={28}
-          height={28}
-        />{" "}
-        <p className="text-[14px] font-medium">Total</p>
-      </div>
-      <div className="flex flex-col p-2 items-center">
-        <Icon
-          icon="material-symbols-light:shopping-cart-checkout"
-          width={28}
-          height={28}
-          className="text-[#313131]"
-          style={{ strokeWidth: 0.3, stroke: "#313131" }}
-        />{" "}
-        <p className="text-[14px] font-medium">Checkout</p>
-      </div>
-      <div className="flex flex-col p-2 items-center">
-        <Icon
-          icon="lets-icons:order-light"
-          width={28}
-          height={28}
-          className="text-[#313131]"
-        />{" "}
-        <p className="text-[14px] font-medium">Order</p>
-      </div>
-    </section>
+<section className="flex items-center justify-between my-2">
+  {/* Left: navigation icons */}
+  <div className="flex items-center gap-4">
+    <div onClick={() => router.push("/")} className="flex flex-col items-center justify-center cursor-pointer">
+      <Icon icon="solar:home-2-linear" width={24} height={24} />
+      <p className="text-[13px] font-medium">Home</p>
+    </div>
+    <div onClick={() => router.push("")} className="flex flex-col items-center justify-center cursor-pointer">
+      <Icon icon="solar:chat-dots-linear" width={24} height={24} />
+      <p className="text-[13px] font-medium">Chat</p>
+    </div>
+    <div className="flex flex-col items-center justify-center cursor-pointer">
+      <Icon icon="lets-icons:order-light" width={24} height={24} />
+      <p className="text-[13px] font-medium">Order</p>
+    </div>
+  </div>
+
+  {/* Center: total */}
+  <div className="flex flex-col items-center justify-center">
+    <p className="text-[17px] font-semibold leading-none">$19.99</p>
+    <p className="text-[13px] leading-none pt-1">Total</p>
+  </div>
+
+  {/* Right: big checkout button */}
+  <button
+    onClick={() => router.push("/checkout")}
+    className="border rounded-[8px] px-6 py-3 font-semibold shadow-sm hover:opacity-80 active:scale-95 transition"
+  >
+    Checkout
+  </button>
+</section>
+
   );
 };
 

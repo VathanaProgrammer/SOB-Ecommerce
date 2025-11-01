@@ -20,7 +20,7 @@ const ItemCard:React.FC<itemProps>= ({ title, price, qty, image }) => {
       </div>
 
       <div className="flex flex-col">
-        <h1 className="main-text text-[20px] font-medium">Quntity: {qty}</h1>
+        <h1 className="main-text text-[20px] font-medium text-end">x {qty}</h1>
         <button className="bg-gray-500 h-[30px] w-[100px] rounded-[5px]"></button>
       </div>
     </div>

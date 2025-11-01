@@ -1,7 +1,7 @@
 import SearchBar from "@/components/SearchBar";
 import Categories from "@/components/Categories";
 import Products from "@/components/Products";
-import Checkout from "./checkout/page";
+import Icon from "./components/Icon";
 
 export default function page() {
   return (

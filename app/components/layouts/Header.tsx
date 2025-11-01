@@ -1,11 +1,11 @@
-'use client';
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Icon } from '@iconify/react';
+"use client";
+import React from "react";
+import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 
 type HeaderProps = {
   title: string;
-  showBack?: boolean; // optional back button
+  showBack?: boolean; 
 };
 
 const Header: React.FC<HeaderProps> = ({ title, showBack = true }) => {
@@ -15,8 +15,11 @@ const Header: React.FC<HeaderProps> = ({ title, showBack = true }) => {
     <header className="flex items-center relative">
       {/* Back icon */}
       {showBack && (
-        <div className="absolute left-0 top-0 bg-gray-500 flex items-center p-2 px-3 rounded-[5px]">
-          <button onClick={() => router.back()}>
+        <div
+          onClick={() => router.back()}
+          className="absolute left-0 top-0 bg-gray-500 flex items-center p-2 px-3 rounded-[5px]"
+        >
+          <button>
             <Icon
               className="text-white"
               icon="weui:back-filled"
