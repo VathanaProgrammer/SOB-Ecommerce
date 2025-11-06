@@ -1,57 +1,75 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Image from "next/image";
+import { CartItem } from "@/context/CartContext";
 
 type ProductProps = {
-  title?: string;
-  price?: number;
-  discount?: number;
+  id: number;
+  title: string;
+  price: number;
   image?: string;
+  onAdd?: (product: Omit<CartItem, "qty">, deltaQty: number) => void;
 };
 
-const Product: React.FC<ProductProps> = ({ title, price, discount, image }) => {
-  const formatPrice = (value?: number | string) => {
-    if (value === undefined || value === null) return "";
+const Product: React.FC<ProductProps> = ({
+  id,
+  title,
+  price,
+  image,
+  onAdd,
+}) => {
+  const [qty, setQty] = useState(0);
 
-    // Convert to number first
-    const num = Number(value);
+  const handleIncrement = () => {
+    const newQty = qty + 1;
+    setQty(newQty);
+    onAdd?.({ id, title, price }, 1);
+  };
 
-    if (isNaN(num)) return ""; // fallback if conversion fails
-
-    const formatted = num.toFixed(2);
-    return formatted.endsWith(".00") ? formatted.slice(0, -3) : formatted;
+  const handleDecrement = () => {
+    if (qty === 0) return;
+    const newQty = qty - 1;
+    setQty(newQty);
+    onAdd?.({ id, title, price }, -1);
   };
 
   return (
-    <div className="w-full rounded-[10px] flex flex-col bg-white shadow-md hover:shadow-md transition overflow-hidden">
-      <div className="relative w-full h-[150px] bg-blue-900">
-        <Image
-          src={image || ""}
-          alt={title || ""}
-          fill
-          unoptimized={true}
-          className="object-cover bg"
-        />
+    <div className="w-full rounded-lg bg-white shadow p-2 flex flex-col">
+      <div className="relative w-full h-40">
+        {image ? (
+          <Image
+            src={image}
+            alt={title}
+            fill
+            className="object-cover rounded-lg"
+            unoptimized
+          />
+        ) : (
+          <div className="bg-gray-200 w-full h-full flex items-center justify-center text-gray-500">
+            No Image
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-row p-2">
-        <div>
-          <h1 className="font-medium text-[16px] text-gray-800 truncate">
-            {title}
-          </h1>
-          <div className="flex flex-row items-center gap-2">
-            <p className="font-semibold text-[14px] text-gray-900">
-              ${formatPrice(price)}
-            </p>
-            {discount && (
-              <p className="text-[12px] text-gray-500 line-through">
-                ${discount}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="h-full w-[40px] rounded-[5px] bg-gray-500 ms-auto">
-          <button></button>
-        </div>
+      <h2 className="mt-2 font-medium text-gray-800">{title}</h2>
+      <p className="text-gray-900 font-semibold">
+        ${price !== undefined && price !== null ? price.toFixed(2) : "0.00"}
+      </p>
+
+      <div className="flex items-center gap-2 mt-2">
+        <button
+          onClick={handleDecrement}
+          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+        >
+          -
+        </button>
+        <span>{qty}</span>
+        <button
+          onClick={handleIncrement}
+          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+        >
+          +
+        </button>
       </div>
     </div>
   );

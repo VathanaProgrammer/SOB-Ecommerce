@@ -31,7 +31,7 @@ const Page = () => {
   return (
     <div className="h-full flex justify-center w-full">
       <form onSubmit={handleSignIn} className="mt-18 w-full">
-        <h1 className="text-2xl font-bold text-center text-gray-800">LUXE</h1>
+        <h1 onClick={() => router.push('/')} className="text-2xl font-bold text-center text-gray-800">LUXE</h1>
         <h2 className="text-lg font-medium text-center text-gray-600 mb-6">
           Sign In to access Your Account
         </h2>
@@ -41,7 +41,7 @@ const Page = () => {
             Phone Number
           </label>
           <input
-            type="number"
+            type="text"
             value={phone}
             onChange={(e) => setPh(e.target.value)}
             placeholder="Enter your phone number"

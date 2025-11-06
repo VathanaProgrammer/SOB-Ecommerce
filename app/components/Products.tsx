@@ -1,44 +1,43 @@
 "use client";
-// D:\Works\internship_at_SOB\SOB-Ecommerce\app\components\Products.tsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Product from "./cards/ProductCard";
-import axios from "axios";
+import { useCart } from "@/context/CartContext";
 import api from "@/api/api";
 
-interface ProductData {
+export interface ProductData {
   id: number;
-  product_id: number;
   is_active: number;
+  product_id: number;
   product: {
     id: number;
     name: string;
-    price?: number;
+    price: string;
     image_url?: string;
-  } & Record<string, unknown>; // ✅ flexible and ESLint-friendly
+  };
 }
 
-
-const Products = () => {
-  const [products, setProducts] = useState<ProductData["product"][]>([]);
+const Products: React.FC = () => {
+  const [products, setProducts] = useState<ProductData[]>([]);
+  const { add } = useCart();
 
   useEffect(() => {
     async function fetchProducts() {
-      const res = await axios.get<{ status: string; data: ProductData[] }>("/api/product");
-      // Extract the nested product objects/
-      const productList = res.data.data.map(item => item.product);
-      setProducts(productList);
+      const res = await api.get<{ status: string; data: ProductData[] }>("/product/all");
+      setProducts(res.data.data);
     }
     fetchProducts();
   }, []);
 
   return (
-    <div className="grid grid-cols-2 mt-4 w-full gap-4 hide-scrollbar overflow-auto">
+    <div className="grid grid-cols-2 gap-4">
       {products.map((item) => (
         <Product
-          key={item.id}
-          title={item.name}
-          price={item.price || 0} // fallback
-          image={item.image_url || ""}
+          key={item.product.id}
+          id={item.product.id}
+          title={item.product.name}
+          price={Number(item.product.price)}
+          image={item.product.image_url}
+          onAdd={add}
         />
       ))}
     </div>

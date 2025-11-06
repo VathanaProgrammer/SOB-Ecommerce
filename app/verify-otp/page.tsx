@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import api from "@/api/api";
 
 const OtpPage = () => {
@@ -11,7 +12,7 @@ const OtpPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
-
+  
   // Autofill OTP from query string
   useEffect(() => {
     const otpFromQuery = searchParams.get("otp");
@@ -70,9 +71,18 @@ const OtpPage = () => {
       //   return;
       // }
       // Simulate verifying (you can uncomment real API call later)
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // fake delay
-      
-      router.push('/');
+    // Simulate verifying OTP
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // ✅ After verification, fetch user from backend
+    const res = await api.get("/user", { withCredentials: true });
+    console.log("User after OTP verify:", res.data);
+
+    if (res.data) {
+      router.push("/");
+    } else {
+      setError("Unable to fetch user after OTP verification");
+    }
     } catch (err) {
       setError("Server error. Try again.");
     } finally {

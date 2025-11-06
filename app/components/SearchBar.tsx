@@ -1,7 +1,11 @@
 import Icon from "@/components/Icon";
 import { ICONS } from "@/constants/icons";
 
-const SearchBar = () => {
+type SearchBarProps = {
+  onSearch: (query: string) => void;
+};
+
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   return (
     <div className="relative w-full mt-4 rounded-[5px] bg-gray-500 h-[45px] flex items-center">
       <div className="absolute left-3">
@@ -10,10 +14,12 @@ const SearchBar = () => {
       <input
         type="search"
         placeholder="Search..."
+        onChange={(e) => onSearch(e.target.value)}
         className="w-full h-full pl-10 pr-3 bg-gray-500 text-white rounded-[5px] focus:outline-none"
       />
     </div>
   );
 };
+
 
 export default SearchBar;

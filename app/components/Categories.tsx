@@ -1,23 +1,50 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import api from "@/api/api";
 
-const Categories = () => {
+type CategoriesProps = {
+  selectedCategory: string;
+  onSelect: (category: string) => void;
+};
+
+type CategoryData = {
+  id: number;
+  name: string;
+};
+
+const Categories: React.FC<CategoriesProps> = ({ selectedCategory, onSelect }) => {
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await api.get<{ status: string; data: CategoryData[] }>("/category/all");
+        setCategories(res.data.data);
+        console.log(res)
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  const allCategories = [{ id: 0, name: "All" }, ...categories];
+
   return (
-    <section className="flex overflow-auto hide-scrollbar gap-4 flex-row items-cener mt-4">
-      <div className="px-4 p-2 text-[16px] max-h-[50px] font-medium text-white rounded-[5px] bg-gray-500">
-        All
-      </div>
-      <div className="px-4 p-2 text-[16px] max-h-[50px] font-medium text-white rounded-[5px] bg-gray-500">
-        Food
-      </div>
-      <div className="px-4 p-2 text-[16px] max-h-[50px] font-medium text-white rounded-[5px] bg-gray-500">
-        Clothes
-      </div>
-      <div className="px-4 p-2 text-[16px] max-h-[50px] font-medium text-white rounded-[5px] bg-gray-500">
-        Laptop
-      </div>
-      <div className="px-4 p-2 text-[16px] max-h-[50px] font-medium text-white rounded-[5px] bg-gray-500">
-        Monitor
-      </div>
+    <section className="flex overflow-auto hide-scrollbar gap-4 flex-row items-center mt-4">
+      {allCategories.map((cat) => (
+        <div
+          key={cat.id}
+          onClick={() => onSelect(cat.name)}
+          className={`px-4 py-2 text-[16px] max-h-[50px] font-medium rounded-[5px] cursor-pointer ${
+            selectedCategory === cat.name ? "bg-blue-600 text-white" : "bg-gray-500 text-white"
+          }`}
+        >
+          {cat.name}
+        </div>
+      ))}
     </section>
   );
 };

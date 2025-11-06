@@ -19,61 +19,72 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (phone: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const router  = useRouter();
-
-  // Fetch user on mount
+  // 🔹 Restore user from cookie on mount
   useEffect(() => {
-    api
-      .get<User>("/user", { withCredentials: true })
-      .then((res) => {
-        console.log("Fetched user:", res.data);
-        setUser(res.data);
-      })
-      .catch((err) => {
-        console.log("Failed to fetch user:", err);
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/user", { withCredentials: true });
+        if (res.data.success) {
+          setUser(res.data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.log("Auth restore failed:", err);
         setUser(null);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
   }, []);
 
-  // Login function
+  // 🔹 Login and set cookie
   const login = async (phone: string, username: string) => {
-    const res1 = await api.post(
-      "/login",
-      { phone, username },
-      { withCredentials: true }
-    );
-    console.log("Login response:", res1.data);
-    if (res1.data.sucess) {
-      router.push('/');
-      // after cookie set, fetch user info
-      const res2 = await api.get<User>("/user", { withCredentials: true });
-      setUser(res2.data);
-      
+    setLoading(true);
+    try {
+      const res = await api.post(
+        "/login",
+        { phone, username },
+        { withCredentials: true }
+      );
+
+      console.log('username: ', username);
+      console.log("phone: ", phone);
+
+      if (res.data.success) {
+        setUser(res.data.user);
+        router.push("/");
+      } else {
+        throw new Error(res.data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
-  console.log("AuthContext user:", user);
 
+  // 🔹 Logout
   const logout = async () => {
-    const res = await api.post("/logout", {}, { withCredentials: true });
-    if(res.data.sucess){
-      router.push('/sign-in')
-      setUser(null);
-    }
+    try {
+      await api.post("/logout", {}, { withCredentials: true });
+    } catch {}
+    setUser(null);
+    router.push("/sign-in");
   };
 
   return (
@@ -83,7 +94,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 };
 
-// Custom hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be inside AuthProvider");

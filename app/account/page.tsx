@@ -157,7 +157,7 @@ useEffect(() => {
         </div>
 
         {/* Logout */}
-        <div className="px-4 pb-10">
+        <div className="pb-10">
           <button onClick={logout} className="w-full bg-red-500 text-white py-2 rounded-[5px] font-semibold hover:bg-red-600 transition">
             Logout
           </button>
