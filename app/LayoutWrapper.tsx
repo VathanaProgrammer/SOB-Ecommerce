@@ -1,21 +1,17 @@
 "use client";
 
-import { AuthProvider } from "./context/AuthContext";
-import { CartProvider } from "./context/CartContext";
 import { IconProvider } from "@/context/IconContext";
 import { usePathname } from "next/navigation";
 import TopNav from "@/components/layouts/TopNav";
 import BottomNav from "@/components/layouts/BottomNav";
-import { useCart } from "./context/CartContext";
 
 export default function LayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-   const { total } = useCart()
-  console.log('Total: ',total);
   const pathname = usePathname();
+
   const noTopBarRoutes = [
     "/checkout",
     "/sign-up",
@@ -24,30 +20,27 @@ export default function LayoutWrapper({
     "/checkout/review",
     "/checkout/success",
     "/account",
-    '/verify-otp'
+    "/verify-otp",
+    "/checkout/address",
+    '/account/shipping-address'
   ];
+
   const hideTopBar = noTopBarRoutes.includes(pathname);
 
-    const noBottomBarRoutes = [
-    '/verify-otp',
-    '/sign-in',
-    '/sign-up',
-
-  ];
-
+  const noBottomBarRoutes = ["/verify-otp", "/sign-in", "/sign-up"];
   const hideBottomBar = noBottomBarRoutes.includes(pathname);
 
   return (
-    <AuthProvider>
-      <IconProvider value={{ width: 32, height: 32, color: "blue" }}>
-          <div className="flex justify-center items-center m-0 p-0 min-h-screen bg-gray-200">
-            <div className="relative p-6 w-full max-w-[430px] aspect-[430/932] bg-white shadow-xl rounded-[30px] overflow-hidden flex flex-col m-2">
-              {!hideTopBar && <TopNav />}
-              <main className="flex-1 overflow-y-auto my-2 hide-scrollbar">{children}</main>
-              {!hideBottomBar && <BottomNav />} {/* now BottomNav can use context */}
-            </div>
-          </div>
-      </IconProvider>
-    </AuthProvider>
+    <IconProvider value={{ width: 32, height: 32, color: "blue" }}>
+      <div className="flex justify-center items-center m-0 p-0 min-h-screen bg-gray-200">
+        <div className="relative p-6 w-full max-w-[430px] aspect-[430/932] bg-white shadow-xl rounded-[30px] overflow-hidden flex flex-col m-2">
+          {!hideTopBar && <TopNav />}
+          <main className="flex-1 overflow-y-auto my-2 hide-scrollbar">
+            {children}
+          </main>
+          {!hideBottomBar && <BottomNav />}
+        </div>
+      </div>
+    </IconProvider>
   );
 }

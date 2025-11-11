@@ -5,10 +5,11 @@ import Header from "@/components/layouts/Header";
 import Image from "next/image";
 import Icon from "@/components/Icon";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const Page: React.FC = () => {
   const { user, logout } = useAuth();
-
+  const router = useRouter();
   const [profileImage, setProfileImage] = useState<string>(
     user?.image_url ||
       "https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"
@@ -38,6 +39,7 @@ const Page: React.FC = () => {
       title: "Shipping Addresses",
       desc: "View and update your shipping and billing addresses.",
       action: "Manage Addresses",
+      route: '/account/shipping-address'
     },
     {
       icon: "mdi:package-variant-closed",
@@ -123,7 +125,7 @@ useEffect(() => {
             {user ? (
               <>
                 <p className="font-semibold text-lg text-gray-900">
-                  {user.username}
+                  {user.name}
                 </p>
               </>
             ) : (
@@ -149,7 +151,7 @@ useEffect(() => {
                 <h3 className="font-medium text-gray-800">{item.title}</h3>
               </div>
               <p className="text-sm text-gray-500">{item.desc}</p>
-              <button className="mt-2 text-sm font-medium text-blue-600 hover:underline self-start">
+              <button onClick={() => router.push(item.route? item.route : '')} className="mt-2 text-sm font-medium text-blue-600 hover:underline self-start">
                 {item.action}
               </button>
             </div>

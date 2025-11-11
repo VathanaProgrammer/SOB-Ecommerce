@@ -2,11 +2,11 @@
 "use client";
 import Icon from "../Icon";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/context/CartContext";
+import { useCheckout } from "@/context/CheckOutContext";
 
 const BottomNav: React.FC = () => {
   const router = useRouter();
-  const { total } = useCart(); // ✅ read from context
+  const { total } = useCheckout(); // ✅ read from context
 
   const formatPrice = (value: number) => {
     if (typeof value !== "number" || isNaN(value)) return "$0.00";

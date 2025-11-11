@@ -22,7 +22,7 @@ export default function Signup() {
         success: boolean;
         otp: string;
         message?: string;
-      }>("/register", { phone, username }, { withCredentials: true });
+      }>("/register", { phone, name: username }, { withCredentials: true });
 
       if (res.data.success) {
         const otp = res.data.otp; // fake OTP

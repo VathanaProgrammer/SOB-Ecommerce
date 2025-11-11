@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { CartItem } from "@/context/CartContext";
+import { CartItem } from "@/context/CheckOutContext";
 
 type ProductProps = {
   id: number;
@@ -23,14 +23,15 @@ const Product: React.FC<ProductProps> = ({
   const handleIncrement = () => {
     const newQty = qty + 1;
     setQty(newQty);
-    onAdd?.({ id, title, price }, 1);
+    onAdd?.({ id, title, price, image: image ?? "" }, 1);
+
   };
 
   const handleDecrement = () => {
     if (qty === 0) return;
     const newQty = qty - 1;
     setQty(newQty);
-    onAdd?.({ id, title, price }, -1);
+    onAdd?.({ id, title, price, image: image ?? "" }, 1);
   };
 
   return (

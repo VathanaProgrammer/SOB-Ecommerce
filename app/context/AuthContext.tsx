@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 interface User {
   id: number;
-  username: string;
+  name: string;
   phone?: string | null;
   image_url?: string | null;
 }
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await api.post(
         "/login",
-        { phone, username },
+        { phone, name: username },
         { withCredentials: true }
       );
 

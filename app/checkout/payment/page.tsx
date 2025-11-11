@@ -4,96 +4,51 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/layouts/Header";
 
 interface PaymentStepProps {
-  onNext?: (method: string) => void; // optional
+  onNext?: (method: string) => void;
 }
 
 const paymentMethods = [
-  {
-    name: "Visa",
-    image: "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png",
-  },
-  {
-    name: "MasterCard",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png",
-  },
-  {
-    name: "PayPal",
-    image: "https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg",
-  },
+  { name: "QR", image: "/qr.jpg" },
+  { name: "Cash", image: "/cash.jpg" },
 ];
 
 const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
   const [selected, setSelected] = useState<string | null>(null);
   const router = useRouter();
 
-  // Move handleNext here
   const handleNext = () => {
     if (!selected) return;
-
-    // Optional: call onNext callback
     if (onNext) onNext(selected);
-
-    // Navigate to review page
     router.push("/checkout/review");
   };
 
   const renderPaymentDetails = (method: string) => {
-    if (method === "PayPal") {
+    if (method === "QR") {
       return (
         <p className="text-sm text-gray-500 mt-3">
-          You will be redirected to PayPal to complete your payment.
+          Scan the QR code with your banking app to complete the payment.
         </p>
       );
     }
-
-    return (
-      <div className="flex flex-col gap-3 mt-3">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder=" "
-            className="peer w-full border border-gray-300 rounded-lg p-3 pt-5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-          />
-          <label className="absolute left-3 top-1.5 text-gray-400 text-xs transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-1.5 peer-focus:text-xs">
-            Card Number
-          </label>
-        </div>
-
-        <div className="flex gap-3 flex-col sm:flex-row">
-          <div className="relative w-full sm:w-1/2">
-            <input
-              type="text"
-              placeholder=" "
-              className="peer w-full border border-gray-300 rounded-lg p-3 pt-5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-            />
-            <label className="absolute left-3 top-1.5 text-gray-400 text-xs transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-1.5 peer-focus:text-xs">
-              MM/YY
-            </label>
-          </div>
-          <div className="relative w-full sm:w-1/2">
-            <input
-              type="text"
-              placeholder=" "
-              className="peer w-full border border-gray-300 rounded-lg p-3 pt-5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-            />
-            <label className="absolute left-3 top-1.5 text-gray-400 text-xs transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-1.5 peer-focus:text-xs">
-              CVV
-            </label>
-          </div>
-        </div>
-      </div>
-    );
+    if (method === "Cash") {
+      return (
+        <p className="text-sm text-gray-500 mt-3">
+          You will pay with cash upon delivery.
+        </p>
+      );
+    }
+    return null;
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col h-full gap-6">
       <Header title="Checkout" />
       <h2 className="text-2xl font-semibold text-gray-800">
         Choose Payment Method
       </h2>
 
-      <div className="flex flex-col gap-4">
+      {/* Payment method list */}
+      <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
         {paymentMethods.map((method) => {
           const isSelected = selected === method.name;
           return (
@@ -120,17 +75,20 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
         })}
       </div>
 
-      <button
-        disabled={!selected}
-        onClick={handleNext}
-        className={`mt-6 px-6 py-3 rounded-lg font-semibold text-white transition-colors duration-200 ${
-          selected
-            ? "bg-blue-600 hover:bg-blue-700"
-            : "bg-gray-300 cursor-not-allowed"
-        }`}
-      >
-        Next: Review
-      </button>
+      {/* Next button pushed to bottom */}
+      <div className="mt-auto">
+        <button
+          disabled={!selected}
+          onClick={handleNext}
+          className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-colors duration-200 ${
+            selected
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-300 cursor-not-allowed"
+          }`}
+        >
+          Next: Review
+        </button>
+      </div>
     </div>
   );
 };
