@@ -39,6 +39,7 @@ const ReviewPage = () => {
       </div>
 
       {/* Shipping Address Display */}
+      {/* Shipping Address Display */}
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-center">
           <p className="font-semibold text-lg text-gray-700">Shipping Address</p>
@@ -49,25 +50,29 @@ const ReviewPage = () => {
             Edit
           </button>
         </div>
+
         <div className="text-gray-500 text-sm space-y-1 border-b border-gray-300 pb-4">
           {address ? (
             <>
+              {/* Label */}
               <p className="text-m font-medium">{address.label}</p>
-              <p className="text-m font-medium">
-                {address.house_number}, {address.road}
-              </p>
-              <p className="text-m font-medium">
-                Neighbourhood: {address.neighbourhood || 'N/A'}, Village: {address.village || 'N/A'}
-              </p>
-              <p className="text-m font-medium">
-                Town: {address.town || 'N/A'}, City: {address.city}, Province: {address.state}
-              </p>
+
+              {/* Details */}
+              {address.details && (
+                <p className="text-m font-medium">{address.details}</p>
+              )}
+
+              {/* Phone */}
+              {address.phone && (
+                <p className="text-m font-medium">Phone: {address.phone}</p>
+              )}
             </>
           ) : (
             <p className="text-gray-500">No address selected</p>
           )}
         </div>
       </div>
+
 
       {/* Payment Method */}
       <div className="flex flex-col gap-3 border-b border-gray-300 pb-4">
