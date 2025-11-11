@@ -18,7 +18,14 @@ export interface ProductData {
   };
 }
 
-const Products: React.FC = () => {
+// ✅ Add props type here
+interface ProductsProps {
+  selectedCategory: string;
+  searchQuery: string;
+}
+
+// ✅ Accept props in component
+const Products: React.FC<ProductsProps> = ({ selectedCategory, searchQuery }) => {
   const [products, setProducts] = useState<ProductData[]>([]);
   const { addToCart } = useCheckout();
   const { setLoading } = useLoading();
@@ -28,7 +35,21 @@ const Products: React.FC = () => {
       setLoading(true);
       try {
         const res = await api.get<{ status: string; data: ProductData[] }>("/product/all");
-        setProducts(res.data.data);
+        let fetchedProducts = res.data.data;
+
+        // ✅ Optional filtering by category and search query
+        if (selectedCategory && selectedCategory !== "All") {
+          fetchedProducts = fetchedProducts.filter((item) =>
+            item.product.name.toLowerCase().includes(selectedCategory.toLowerCase())
+          );
+        }
+        if (searchQuery) {
+          fetchedProducts = fetchedProducts.filter((item) =>
+            item.product.name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
+
+        setProducts(fetchedProducts);
       } catch (err) {
         console.error(err);
         toast.error("Failed to load products");
@@ -38,7 +59,7 @@ const Products: React.FC = () => {
     }
 
     fetchProducts();
-  }, [setLoading]);
+  }, [selectedCategory, searchQuery, setLoading]);
 
   return (
     <div className="grid grid-cols-2 gap-4 mt-4">
