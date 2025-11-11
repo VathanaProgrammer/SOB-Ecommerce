@@ -12,18 +12,11 @@ export type CartItem = {
 };
 
 export type Address = {
-  type: "current" | "saved";
+  id?: number;
   label: string;
-  house_number?: string;
-  road?: string;
-  neighbourhood?: string;
-  village?: string;
-  town?: string;
-  city?: string;
-  state: string;
-  postcode?: string;
-  country?: string;
-  country_code?: string;
+  details?: string;
+  phone?: string;
+  coordinates?: { lat: number; lng: number };
 };
 
 type CheckoutContextType = {
@@ -44,32 +37,21 @@ type CheckoutContextType = {
 const CheckoutContext = createContext<CheckoutContextType | undefined>(undefined);
 
 export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [total, setTotal] = useState(0);
-  
   const { user } = useAuth();
 
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState<Address | "current" | null>(null);
   const [currentAddress, setCurrentAddress] = useState<Address>({
-    type: "current",
     label: "Current Location",
-    house_number: "",
-    road: "",
-    neighbourhood: "",
-    village: "",
-    town: "",
-    city: "",
-    state: "",
-    postcode: "",
-    country: "Cambodia",
-    country_code: "KH",
+    details: "",
+    phone: "",
+    coordinates: { lat: 0, lng: 0 },
   });
-
   const [paymentMethod, setPaymentMethod] = useState("QR");
 
   // CART METHODS
-  const recalcTotal = (items: CartItem[]) =>
-    items.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const recalcTotal = (items: CartItem[]) => items.reduce((acc, item) => acc + item.price * item.qty, 0);
 
   const addToCart = (product: Omit<CartItem, "qty">, deltaQty: number) => {
     setCart(prev => {
@@ -122,8 +104,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 
   // PLACE ORDER
   const placeOrder = async () => {
-    const address =
-      selectedAddress === "current" ? currentAddress : selectedAddress;
+    const address = selectedAddress === "current" ? currentAddress : selectedAddress;
 
     if (!address || cart.length === 0) {
       alert("Cart is empty or no address selected!");
@@ -131,7 +112,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const payload = {
-      api_user_id: user?.id, // TODO: replace with actual logged user id
+      api_user_id: user?.id,
       address,
       paymentMethod,
       total_qty: cart.reduce((sum, item) => sum + item.qty, 0),
@@ -146,24 +127,12 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
     };
 
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/store-order`,
-        payload,
-        {
-          withCredentials: true,
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
-
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/store-order`, payload, {
+        withCredentials: true,
+        headers: { Accept: "application/json" },
+      });
       console.log("✅ ORDER SUCCESS:", res.data);
       alert("Order placed successfully!");
-
-      // Optional: clear cart
-      // setCart([]);
-      // setTotal(0);
-      // setSelectedAddress(null);
     } catch (err: any) {
       if (err.response) {
         console.error("❌ API ERROR:", err.response.data);
@@ -174,7 +143,6 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   };
-
 
   return (
     <CheckoutContext.Provider

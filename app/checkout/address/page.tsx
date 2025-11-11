@@ -54,8 +54,8 @@ export default function AddressPage() {
       ...currentAddress,
       details: place.formatted_address,
       coordinates: {
-        lat: place.geometry.location?.lat(),
-        lng: place.geometry.location?.lng(),
+        lat: place.geometry.location!.lat(),
+        lng: place.geometry.location!.lng(),
       },
     });
   };
