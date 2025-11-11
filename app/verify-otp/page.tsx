@@ -12,7 +12,7 @@ const OtpPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
-  
+
   // Autofill OTP from query string
   useEffect(() => {
     const otpFromQuery = searchParams.get("otp");
@@ -71,18 +71,18 @@ const OtpPage = () => {
       //   return;
       // }
       // Simulate verifying (you can uncomment real API call later)
-    // Simulate verifying OTP
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Simulate verifying OTP
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // ✅ After verification, fetch user from backend
-    const res = await api.get("/user", { withCredentials: true });
-    console.log("User after OTP verify:", res.data);
+      // ✅ After verification, fetch user from backend
+      const res = await api.get("/user", { withCredentials: true });
+      console.log("User after OTP verify:", res.data);
 
-    if (res.data) {
-      router.push("/");
-    } else {
-      setError("Unable to fetch user after OTP verification");
-    }
+      if (res.data) {
+        router.push("/");
+      } else {
+        setError("Unable to fetch user after OTP verification");
+      }
     } catch (err) {
       setError("Server error. Try again.");
     } finally {
@@ -112,7 +112,9 @@ const OtpPage = () => {
             {otp.map((digit, idx) => (
               <input
                 key={idx}
-                ref={(el) => (inputsRef.current[idx] = el)}
+                ref={(el) => {
+                  inputsRef.current[idx] = el; // ✅ TypeScript-safe
+                }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -122,6 +124,7 @@ const OtpPage = () => {
                 className="w-12 h-12 text-center text-xl border-b-2 border-gray-400 focus:border-blue-500 outline-none"
               />
             ))}
+
           </div>
 
           {error && <span className="text-red-500 text-sm">{error}</span>}
