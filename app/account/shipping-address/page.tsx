@@ -63,10 +63,10 @@ export default function ShippingAddressPage() {
     console.log(newAddress);
 
     try {
-      const res = await api.post("/addresses", newAddress); 
+      const res = await api.post("/addresses", newAddress);
       // replace with your actual API
       const saved: Address = res.data;
-      
+
       setSavedAddresses([...savedAddresses, saved]);
       setSelectedAddress(saved.id ?? null);
       setNewAddress({ label: "", phone: "", details: "", api_user_id: user?.id || undefined, coordinates: undefined });
@@ -87,9 +87,8 @@ export default function ShippingAddressPage() {
         {savedAddresses.map((addr) => (
           <div
             key={addr.id}
-            className={`p-4 rounded-xl border flex justify-between items-start gap-4 shadow hover:shadow-md transition cursor-pointer ${
-              selectedAddress === addr.id ? "border-blue-500 bg-blue-50" : "border-gray-200 bg-white"
-            }`}
+            className={`p-4 rounded-xl border flex justify-between items-start gap-4 shadow hover:shadow-md transition cursor-pointer ${selectedAddress === addr.id ? "border-blue-500 bg-blue-50" : "border-gray-200 bg-white"
+              }`}
             onClick={() => setSelectedAddress(addr.id!)}
           >
             <div>
@@ -173,7 +172,7 @@ export default function ShippingAddressPage() {
             <h3 className="text-lg font-semibold mb-2">Select Location</h3>
             <GoogleMap
               mapContainerStyle={containerStyle}
-              center={newAddress.coordinates ||undefined}
+              center={newAddress.coordinates || { lat: 11.567, lng: 104.928 }}
               zoom={15}
               onClick={(e) => {
                 if (e.latLng)
@@ -196,6 +195,7 @@ export default function ShippingAddressPage() {
                 />
               )}
             </GoogleMap>
+
 
             <div className="flex justify-end gap-2 mt-2">
               <button
