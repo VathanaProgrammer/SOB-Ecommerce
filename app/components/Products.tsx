@@ -69,7 +69,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory, searchQuery }) =>
           id={item.product.id}
           title={item.product.name}
           price={Number(item.product.price)}
-          image={item.product.image_url}
+          image={item.product.image_url || ""}
           onAdd={addToCart}
         />
       ))}
