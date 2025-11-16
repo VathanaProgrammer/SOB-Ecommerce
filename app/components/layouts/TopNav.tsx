@@ -18,9 +18,9 @@ const TopNav = () => {
       router.push("/sign-in");
     }
   };
+
   useEffect(() => {
     if (!navigator.geolocation) {
-      // Wrap setState in a timeout to avoid synchronous update warning
       setTimeout(() => {
         setError("Geolocation is not supported by your browser");
         setLocation("");

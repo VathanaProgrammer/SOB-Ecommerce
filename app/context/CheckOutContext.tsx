@@ -2,6 +2,9 @@
 import { createContext, useContext, ReactNode, useState } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
+import { toast } from "react-toastify";
+import { getShortAddress } from "./utils/geocode";
+import { useRouter } from "next/navigation";
 
 export type CartItem = {
   id: number;
@@ -17,6 +20,7 @@ export type Address = {
   details?: string;
   phone?: string;
   coordinates?: { lat: number; lng: number };
+  short_address?: string;
 };
 
 type CheckoutContextType = {
@@ -38,6 +42,7 @@ const CheckoutContext = createContext<CheckoutContextType | undefined>(undefined
 
 export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
+  const router = useRouter();
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -104,16 +109,35 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 
   // PLACE ORDER
   const placeOrder = async () => {
-    const address = selectedAddress === "current" ? currentAddress : selectedAddress;
+    let addressToSend: Address | null = null;
 
-    if (!address || cart.length === 0) {
-      alert("Cart is empty or no address selected!");
+    if (selectedAddress === "current") {
+      if (!currentAddress.coordinates) {
+        toast.error("Current address coordinates not set!");
+        return;
+      }
+
+      // Get short address using Google API
+      const short_address = await getShortAddress(
+        currentAddress.coordinates.lat,
+        currentAddress.coordinates.lng
+      );
+
+      addressToSend = { ...currentAddress, short_address };
+    } else {
+      addressToSend = selectedAddress as Address;
+    }
+
+    if (!addressToSend || cart.length === 0) {
+      toast.error("Cart is empty or no address selected!");
       return;
     }
 
     const payload = {
       api_user_id: user?.id,
-      address,
+      saved_address_id: selectedAddress !== "current" ? addressToSend.id : undefined,
+      address: selectedAddress === "current" ? addressToSend : undefined,
+      address_type: selectedAddress === "current" ? "current" : "saved",
       paymentMethod,
       total_qty: cart.reduce((sum, item) => sum + item.qty, 0),
       total,
@@ -126,23 +150,37 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
       })),
     };
 
+    console.log(payload)
+
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/store-order`, payload, {
-        withCredentials: true,
-        headers: { Accept: "application/json" },
-      });
-      console.log("✅ ORDER SUCCESS:", res.data);
-      alert("Order placed successfully!");
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/store-order`,
+        payload,
+        { withCredentials: true, headers: { Accept: "application/json" } }
+      );
+
+      if (res.data?.success) {
+        toast.success("Order placed successfully!");
+
+        const telegram_start_link = res.data.telegram_start_link;
+
+        // Redirect to success page + pass Telegram link
+        router.push(`/checkout/order-success?telegram=${encodeURIComponent(telegram_start_link)}`);
+      }
+
+
     } catch (err: any) {
       if (err.response) {
         console.error("❌ API ERROR:", err.response.data);
-        alert(err.response.data.message || "Order failed.");
+        toast.error(err.response.data.message || "Order failed.");
       } else {
         console.error("🔥 NETWORK ERROR:", err);
-        alert("Network error. Please try again.");
+        toast.error("Network error. Please try again.");
       }
     }
   };
+
+
 
   return (
     <CheckoutContext.Provider

@@ -1,73 +1,81 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { CartItem } from "@/context/CheckOutContext";
 
 type ProductProps = {
   id: number;
   title: string;
   price: number;
   image?: string;
-  onAdd?: (product: Omit<CartItem, "qty">, deltaQty: number) => void;
+  onAdd?: (
+    product: {
+      id: number;
+      title: string;
+      price: number;
+      image?: string;
+    },
+    qty: number
+  ) => void;
 };
 
-const Product: React.FC<ProductProps> = ({
-  id,
-  title,
-  price,
-  image,
-  onAdd,
-}) => {
+const Product: React.FC<ProductProps> = ({ id, title, price, image, onAdd }) => {
   const [qty, setQty] = useState(0);
+
+  // ✅ Extract only the filename (e.g. "1761268367_images-1.jpg")
+  const imageFile = image ? image.split("/").pop() : undefined;
 
   const handleIncrement = () => {
     const newQty = qty + 1;
     setQty(newQty);
-    onAdd?.({ id, title, price, image: image ?? "" }, 1);
-
+    // ✅ Pass only the filename
+    onAdd?.({ id, title, price, image: imageFile }, 1);
   };
 
   const handleDecrement = () => {
     if (qty === 0) return;
     const newQty = qty - 1;
     setQty(newQty);
-    onAdd?.({ id, title, price, image: image ?? "" }, 1);
+    // ✅ Pass only the filename
+    onAdd?.({ id, title, price, image: imageFile }, -1);
   };
 
+  const displayImage =
+    image && image.trim() !== ""
+      ? image
+      : "/images/default-product.png"; // fallback image in /public/images/
+
   return (
-    <div className="w-full rounded-lg bg-white shadow p-2 flex flex-col">
-      <div className="relative w-full h-40">
-        {image ? (
-          <Image
-            src={image}
-            alt={title}
-            fill
-            className="object-cover rounded-lg"
-            unoptimized
-          />
-        ) : (
-          <div className="bg-gray-200 w-full h-full flex items-center justify-center text-gray-500">
-            No Image
-          </div>
-        )}
+    <div className="w-full rounded-xl bg-gray-50 border border-gray-200 shadow-md flex flex-col overflow-hidden transition hover:shadow-lg">
+      {/* Product Image */}
+      <div className="relative w-full h-44">
+        <Image
+          src={displayImage}
+          alt={title}
+          fill
+          className="object-cover"
+          unoptimized
+          sizes="(max-width: 768px) 100vw"
+        />
       </div>
 
-      <h2 className="mt-2 font-medium text-gray-800">{title}</h2>
-      <p className="text-gray-900 font-semibold">
-        ${price !== undefined && price !== null ? price.toFixed(2) : "0.00"}
-      </p>
+      {/* Product Info */}
+      <div className="p-3 flex flex-col flex-1">
+        <h2 className="font-semibold text-gray-800 text-sm truncate">{title}</h2>
+        <p className="text-gray-900 font-bold text-base mt-1">${price.toFixed(2)}</p>
+      </div>
 
-      <div className="flex items-center gap-2 mt-2">
+      {/* Quantity Controls */}
+      <div className="flex items-center justify-between px-3 pb-3">
         <button
           onClick={handleDecrement}
-          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 text-gray-700"
         >
           -
         </button>
-        <span>{qty}</span>
+        <span className="text-gray-800 font-semibold">{qty}</span>
         <button
           onClick={handleIncrement}
-          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          className="w-8 h-8 flex items-center justify-center bg-blue-600 rounded hover:bg-blue-700 text-white"
         >
           +
         </button>

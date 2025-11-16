@@ -3,10 +3,15 @@ import React from "react";
 import Header from "@/components/layouts/Header";
 import { useCheckout } from "@/context/CheckOutContext";
 import { useRouter } from "next/navigation";
+import { useLoading } from "@/context/LoadingContext";
 
 const CheckoutPage = () => {
   const { cart, total, updateItemQty } = useCheckout();
   const router = useRouter();
+
+
+
+  console.log(cart)
 
   const handleNext = () => {
     router.push("/checkout/address");
@@ -26,7 +31,7 @@ const CheckoutPage = () => {
             className="flex items-center justify-between border-b border-gray-300 p-3 gap-3"
           >
             <img
-              src={item.image}
+              src={process.env.NEXT_PUBLIC_IMAGE_URL+item.image}
               alt={item.title}
               className="w-16 h-16 object-cover rounded"
             />

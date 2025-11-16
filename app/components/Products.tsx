@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Product from "./cards/ProductCard";
 import { useCheckout } from "@/context/CheckOutContext";
 import api from "@/api/api";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { useLoading } from "@/context/LoadingContext";
 
 export interface ProductData {

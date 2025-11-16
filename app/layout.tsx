@@ -1,12 +1,14 @@
-// app/layout.tsx
+
+
 import type { Metadata } from "next";
 import LayoutWrapper from "./LayoutWrapper";
 import { CheckoutProvider } from "./context/CheckOutContext";
 import { AuthProvider } from "./context/AuthContext";
 import GoogleMapsProvider from "@/provider/GoogleMapsProvider";
-import "./globals.css";
-import { Toaster } from "react-hot-toast";
 import { LoadingProvider } from "@/context/LoadingContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "SOB-Ecommerce",
@@ -22,7 +24,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <CheckoutProvider>
               <LoadingProvider>
                 <LayoutWrapper>{children}</LayoutWrapper>
-                <Toaster position="top-right" reverseOrder={false} />
+
+                {/* ✅ Toastify container (instead of Toaster) */}
+                <ToastContainer
+                  position="top-center"
+                  autoClose={2500}
+                  hideProgressBar={false}
+                  newestOnTop
+                  closeOnClick
+                  pauseOnHover
+                  draggable
+                  theme="colored"
+                />
               </LoadingProvider>
             </CheckoutProvider>
           </AuthProvider>

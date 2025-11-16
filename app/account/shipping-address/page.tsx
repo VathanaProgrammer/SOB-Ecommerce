@@ -4,7 +4,10 @@ import React, { useState } from "react";
 import Header from "@/components/layouts/Header";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import api from "@/api/api";
+import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-toastify";
+import { useLoading } from "@/context/LoadingContext";
 
 export type Address = {
   id?: number;
@@ -15,36 +18,39 @@ export type Address = {
   coordinates?: { lat: number; lng: number };
 };
 
+
+
 const containerStyle = { width: "100%", height: "400px" };
 
-// static saved addresses for now
-const initialSavedAddresses: Address[] = [
-  {
-    id: 1,
-    api_user_id: 1,
-    label: "Home",
-    phone: "012345678",
-    details: "123 Street 1928, Phnom Penh Thmei, Khan Sen Sok, Phnom Penh",
-    coordinates: { lat: 11.567, lng: 104.928 },
-  },
-  {
-    id: 2,
-    api_user_id: 1,
-    label: "Work",
-    phone: "0987654321",
-    details: "456 Street 2000, Sangkat Y, Khan Z, Phnom Penh",
-    coordinates: { lat: 11.560, lng: 104.920 },
-  },
-];
 
 export default function ShippingAddressPage() {
 
   const { user } = useAuth();
+  const { setLoading } = useLoading();
 
-  const [savedAddresses, setSavedAddresses] = useState<Address[]>(initialSavedAddresses);
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  async function fetchAddress() {
+    setLoading(true);
+    try {
+      const res = await api.get<{ status: string; data: Address[] }>("/addresses/all");
+      let fetchedProducts = res.data.data;
+
+
+      setSavedAddresses(fetchedProducts);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+
+    fetchAddress();
+  }, [setLoading])
 
   const [newAddress, setNewAddress] = useState<Address>({
     label: "",

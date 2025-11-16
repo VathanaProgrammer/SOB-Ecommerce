@@ -1,24 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layouts/Header";
-
-interface PaymentStepProps {
-  onNext?: (method: string) => void;
-}
+import { useCheckout } from "@/context/CheckOutContext";
 
 const paymentMethods = [
   { name: "QR", image: "/qr.jpg" },
   { name: "Cash", image: "/cash.jpg" },
 ];
 
-const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
-  const [selected, setSelected] = useState<string | null>(null);
+const PaymentStep: React.FC = () => {
   const router = useRouter();
+  const { paymentMethod, setPaymentMethod } = useCheckout();
 
   const handleNext = () => {
-    if (!selected) return;
-    if (onNext) onNext(selected);
+    if (!paymentMethod) return;
     router.push("/checkout/review");
   };
 
@@ -50,11 +46,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
       {/* Payment method list */}
       <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
         {paymentMethods.map((method) => {
-          const isSelected = selected === method.name;
+          const isSelected = paymentMethod === method.name;
           return (
             <div
               key={method.name}
-              onClick={() => setSelected(method.name)}
+              onClick={() => setPaymentMethod(method.name)}
               className={`cursor-pointer border rounded-xl p-5 flex flex-col gap-2 transition-shadow duration-200 ${
                 isSelected
                   ? "border-blue-500 bg-blue-50 shadow-lg"
@@ -75,13 +71,13 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
         })}
       </div>
 
-      {/* Next button pushed to bottom */}
+      {/* Next button */}
       <div className="mt-auto">
         <button
-          disabled={!selected}
+          disabled={!paymentMethod}
           onClick={handleNext}
           className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-colors duration-200 ${
-            selected
+            paymentMethod
               ? "bg-blue-600 hover:bg-blue-700"
               : "bg-gray-300 cursor-not-allowed"
           }`}
