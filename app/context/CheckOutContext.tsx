@@ -11,7 +11,7 @@ export type CartItem = {
   title: string;
   price: number;
   image?: string;
-  qty?: number;
+  qty: number;
 };
 
 export type Address = {
@@ -146,7 +146,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         qty: item.qty,
         price_at_order: item.price,
         total_line: Number((item.qty * item.price).toFixed(2)),
-        image_url: item.image.split("/").pop(),
+        image_url: (item.image ?? "").split("/").pop(),
       })),
     };
 

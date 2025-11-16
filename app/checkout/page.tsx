@@ -31,7 +31,7 @@ const CheckoutPage = () => {
             className="flex items-center justify-between border-b border-gray-300 p-3 gap-3"
           >
             <img
-              src={process.env.NEXT_PUBLIC_IMAGE_URL+item.image}
+              src={process.env.NEXT_PUBLIC_IMAGE_URL!+item.image}
               alt={item.title}
               className="w-16 h-16 object-cover rounded"
             />
