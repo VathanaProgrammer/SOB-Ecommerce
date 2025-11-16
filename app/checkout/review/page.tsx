@@ -22,7 +22,7 @@ const ReviewPage = () => {
           cart.map(item => (
             <div key={item.id} className="flex items-center justify-between border-b border-gray-300 p-4">
               <div className="flex items-center gap-4">
-                <img src={process.env.NEXT_PUBLIC_IMAGE_URL + item.image} alt={item.title} className="w-16 h-16 object-cover rounded-lg" />
+                <img src={process.env.NEXT_PUBLIC_IMAGE_URL! + item.image} alt={item.title} className="w-16 h-16 object-cover rounded-lg" />
                 <div>
                   <p className="font-semibold text-gray-800">{item.title}</p>
                   <p className="text-md text-gray-500">x {item.qty}</p>
