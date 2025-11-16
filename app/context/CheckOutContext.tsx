@@ -10,8 +10,8 @@ export type CartItem = {
   id: number;
   title: string;
   price: number;
-  image: string;
-  qty: number;
+  image?: string;
+  qty?: number;
 };
 
 export type Address = {
