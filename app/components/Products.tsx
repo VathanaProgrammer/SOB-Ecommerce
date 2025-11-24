@@ -18,13 +18,13 @@ export interface ProductData {
   };
 }
 
-// ✅ Add props type here
+// Add props type here
 interface ProductsProps {
   selectedCategory: string;
   searchQuery: string;
 }
 
-// ✅ Accept props in component
+// Accept props in component
 const Products: React.FC<ProductsProps> = ({ selectedCategory, searchQuery }) => {
   const [products, setProducts] = useState<ProductData[]>([]);
   const { addToCart } = useCheckout();

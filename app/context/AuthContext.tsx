@@ -12,9 +12,16 @@ import { useRouter } from "next/navigation";
 interface User {
   id: number;
   name: string;
-  phone?: string | null;
-  image_url?: string | null;
+  phone?: string | null;        
+  image_url?: string | null;    
+  reward_points: {
+    total: number;              
+    used: number;              
+    expired: number;            
+    available: number;          
+  };
 }
+
 
 interface AuthContextType {
   user: User | null;
@@ -82,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       await api.post("/logout", {}, { withCredentials: true });
-    } catch {}
+    } catch { }
     setUser(null);
     router.push("/sign-in");
   };

@@ -4,91 +4,115 @@ import Icon from "../Icon";
 import { useRouter } from "next/navigation";
 import { useCheckout } from "@/context/CheckOutContext";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { usePathname } from "next/navigation";
+import { toast } from "react-toastify";
 
 const BottomNav: React.FC = () => {
   const router = useRouter();
-  const { total } = useCheckout(); // ✅ read from context
+  const {
+    total,
+    placeOrder,
+    placeRewardOrder,
+    cart,
+    rewards,
+    paymentMethod,
+    selectedAddress,
+  } = useCheckout();
   const [activePage, setActivePage] = useState<"home" | "chat" | "order">("home");
 
-  const formatPrice = (value: number) => {
-    if (typeof value !== "number" || isNaN(value)) return "$0.00";
-    return `$${value.toFixed(2)}`;
+  const { user } = useAuth();
+  const pathname = usePathname();
+  const isCheckoutPage = pathname === "/checkout";
+
+  const checkoutButtonText =
+    isCheckoutPage
+      ? rewards.length > 0
+        ? "Reward Order"
+        : "Place Order"
+      : "Checkout";
+
+  const isCartEmpty = cart.length === 0 && rewards.length === 0;
+  const isPaymentMissing = !paymentMethod;
+  const isAddressMissing = !selectedAddress;
+
+  const formatPrice = (value: number) =>
+    typeof value !== "number" || isNaN(value) ? "$0.00" : `$${value.toFixed(2)}`;
+
+  const handleClickCheckout = () => {
+    if (!user) return router.push("/sign-in");
+
+    if (isCheckoutPage) {
+      const errors: string[] = [];
+      if (cart.length > 0 && rewards.length > 0) {
+        errors.push("Cannot mix products and rewards!");
+      }
+      if (cart.length === 0 && rewards.length === 0) errors.push("Cart is empty!");
+      if (isPaymentMissing) errors.push("Please select a payment method!");
+      if (isAddressMissing) errors.push("Please select a shipping address!");
+
+      if (errors.length > 0) {
+        errors.forEach((err) => toast.error(err));
+        return;
+      }
+
+      if (rewards.length > 0) {
+        placeRewardOrder?.();
+      } else {
+        placeOrder?.();
+      }
+    } else {
+      router.push("/checkout");
+    }
   };
 
   const iconColor = (page: "home" | "chat" | "order") =>
-    activePage === page ? "#1E40AF" : "#6B7280"; // primary blue for active, gray for inactive
+    activePage === page ? "#1E40AF" : "#6B7280";
 
   return (
     <section className="flex items-center justify-between my-2">
-      {/* Left: navigation icons */}
       <div className="flex items-center gap-4">
-        <div
-          onClick={() => {
-            router.push("/");
-            setActivePage("home");
-          }}
-          className="flex flex-col items-center justify-center cursor-pointer"
-        >
-          <Icon
-            icon="solar:home-2-linear"
-            width={24}
-            height={24}
-            style={{ color: iconColor("home") }}
-          />
-          <p className="text-[13px] font-medium" style={{ color: iconColor("home") }}>
-            Home
-          </p>
-        </div>
-
-        <div
-          onClick={() => {
-            router.push("/chat");
-            setActivePage("chat");
-          }}
-          className="flex flex-col items-center justify-center cursor-pointer"
-        >
-          <Icon
-            icon="solar:chat-dots-linear"
-            width={24}
-            height={24}
-            style={{ color: iconColor("chat") }}
-          />
-          <p className="text-[13px] font-medium" style={{ color: iconColor("chat") }}>
-            Chat
-          </p>
-        </div>
-
-        <div
-          onClick={() => {
-            router.push("/orders");
-            setActivePage("order");
-          }}
-          className="flex flex-col items-center justify-center cursor-pointer"
-        >
-          <Icon
-            icon="lets-icons:order-light"
-            width={24}
-            height={24}
-            style={{ color: iconColor("order") }}
-          />
-          <p className="text-[13px] font-medium" style={{ color: iconColor("order") }}>
-            Order
-          </p>
-        </div>
+        {["home", "chat", "order"].map((page) => (
+          <div
+            key={page}
+            onClick={() => {
+              router.push(`/${page === "home" ? "" : page}`);
+              setActivePage(page as "home" | "chat" | "order");
+            }}
+            className="flex flex-col items-center justify-center cursor-pointer"
+          >
+            <Icon
+              icon={
+                page === "home"
+                  ? "solar:home-2-linear"
+                  : page === "chat"
+                  ? "solar:chat-dots-linear"
+                  : "lets-icons:order-light"
+              }
+              width={24}
+              height={24}
+              style={{ color: iconColor(page as "home" | "chat" | "order") }}
+            />
+            <p
+              className="text-[13px] font-medium"
+              style={{ color: iconColor(page as "home" | "chat" | "order") }}
+            >
+              {page.charAt(0).toUpperCase() + page.slice(1)}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {/* Center: total */}
       <div className="flex flex-col items-center justify-center">
         <p className="text-[17px] font-semibold leading-none">{formatPrice(total)}</p>
         <p className="text-[13px] leading-none pt-1 text-gray-500">Total</p>
       </div>
 
-      {/* Right: big checkout button */}
       <button
-        onClick={() => router.push("/checkout")}
+        onClick={handleClickCheckout}
         className="border rounded-[8px] px-6 py-3 font-semibold shadow-sm bg-[#1E40AF] text-white hover:opacity-80 active:scale-95 transition"
       >
-        Checkout
+        {checkoutButtonText}
       </button>
     </section>
   );

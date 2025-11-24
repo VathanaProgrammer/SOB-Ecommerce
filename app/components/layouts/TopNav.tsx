@@ -116,16 +116,17 @@ const TopNav = () => {
 
         <div
           onClick={() => router.push("/account")}
-          className="p-2 flex flex-row items-center min-w-[95px] rounded-[10px] bg-[#F3F4F6] cursor-pointer hover:bg-gray-200 transition"
+          className="p-2 flex flex-row items-center min-w-[75px] rounded-[10px] bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-md cursor-pointer hover:from-yellow-500 hover:to-yellow-600 transition"
         >
           <Icon
-            className="text-gray-500"
+            className="text-white"
             icon="vaadin:database"
             width={20}
             height={20}
           />
-          <p className="text-[16px] font-medium ml-1">128 pts</p>
+          <p className="text-[16px] font-medium ml-1">{user?.reward_points?.available || 0}</p>
         </div>
+
       </div>
 
       {error && <p className="text-red-500 text-[12px]">{error}</p>}

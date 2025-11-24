@@ -1,0 +1,39 @@
+// components/FeaturedSection.tsx
+"use client";
+import React from "react";
+import Product from "./cards/ProductCard";
+
+export interface FeaturedProduct {
+  id: number;
+  name: string;
+  price: number;
+  image_url: string;
+}
+
+interface FeaturedSectionProps {
+  products: FeaturedProduct[];
+  onAdd?: (id: number) => void;
+}
+
+const FeaturedSection: React.FC<FeaturedSectionProps> = ({ products, onAdd }) => {
+  return (
+    <section className="mt-4">
+      <h2 className="text-xl font-bold text-gray-700 mb-2">Featured Products</h2>
+      <div className="grid grid-cols-2 gap-4">
+        {products.map((item) => (
+          <Product
+            key={item.id}
+            id={item.id}
+            title={item.name}
+            price={item.price}
+            image={item.image_url}
+            badge="★"
+            onAdd={onAdd}
+          />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default FeaturedSection;

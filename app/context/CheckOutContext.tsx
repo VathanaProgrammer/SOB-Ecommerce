@@ -14,6 +14,14 @@ export type CartItem = {
   qty: number;
 };
 
+export type RewardItem = {
+  product_id: number;
+  name: string;
+  points_at_reward: number;
+  qty: number;
+  image?: string;
+};
+
 export type Address = {
   id?: number;
   label: string;
@@ -29,13 +37,23 @@ type CheckoutContextType = {
   addToCart: (product: Omit<CartItem, "qty">, deltaQty: number) => void;
   updateItemQty: (id: number, qty: number) => void;
   removeItem: (id: number) => void;
+
+  rewards: RewardItem[];
+  totalPoints: number;
+  addReward: (reward: Omit<RewardItem, "qty">, deltaQty: number) => void;
+  updateRewardQty: (product_id: number, qty: number) => void;
+  removeReward: (product_id: number) => void;
+
   selectedAddress: Address | "current" | null;
   setSelectedAddress: (addr: Address | "current") => void;
   currentAddress: Address;
   setCurrentAddress: (addr: Address) => void;
+
   paymentMethod: string;
   setPaymentMethod: (method: string) => void;
+
   placeOrder: () => void;
+  placeRewardOrder: () => void;
 };
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(undefined);
@@ -46,6 +64,10 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [total, setTotal] = useState(0);
+
+  const [rewards, setRewards] = useState<RewardItem[]>([]);
+  const [totalPoints, setTotalPoints] = useState(0);
+
   const [selectedAddress, setSelectedAddress] = useState<Address | "current" | null>(null);
   const [currentAddress, setCurrentAddress] = useState<Address>({
     label: "Current Location",
@@ -53,11 +75,14 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
     phone: "",
     coordinates: { lat: 0, lng: 0 },
   });
+
   const [paymentMethod, setPaymentMethod] = useState("QR");
+  const userPoints = user?.reward_points?.available || 0;
 
-  // CART METHODS
-  const recalcTotal = (items: CartItem[]) => items.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const recalcTotal = (items: CartItem[]) => items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const recalcTotalPoints = (items: RewardItem[]) => items.reduce((sum, i) => sum + i.points_at_reward * i.qty, 0);
 
+  // --- CART METHODS ---
   const addToCart = (product: Omit<CartItem, "qty">, deltaQty: number) => {
     setCart(prev => {
       const idx = prev.findIndex(i => i.id === product.id);
@@ -71,11 +96,10 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
       const existing = prev[idx];
       const newQty = existing.qty + deltaQty;
       if (newQty <= 0) {
-        const newItems = [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+        const newItems = prev.filter(i => i.id !== product.id);
         setTotal(recalcTotal(newItems));
         return newItems;
       }
-
       const updated = { ...existing, qty: newQty };
       const newItems = [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
       setTotal(recalcTotal(newItems));
@@ -88,7 +112,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
       const idx = prev.findIndex(i => i.id === id);
       if (idx === -1) return prev;
       if (qty <= 0) {
-        const newItems = [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+        const newItems = prev.filter(i => i.id !== id);
         setTotal(recalcTotal(newItems));
         return newItems;
       }
@@ -107,22 +131,67 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  // PLACE ORDER
+  // --- REWARD METHODS ---
+  const addReward = (reward: Omit<RewardItem, "qty">, deltaQty: number) => {
+    setRewards(prev => {
+      const idx = prev.findIndex(r => r.product_id === reward.product_id);
+      const existingQty = idx === -1 ? 0 : prev[idx].qty;
+      const newQty = existingQty + deltaQty;
+
+      const newTotalPoints = prev.reduce((sum, r, i) => {
+        if (i === idx) return sum + newQty * reward.points_at_reward;
+        return sum + r.qty * r.points_at_reward;
+      }, 0) + (idx === -1 ? deltaQty * reward.points_at_reward : 0);
+
+      if (newTotalPoints > userPoints) {
+        // ⚠️ block increment, toast after
+        setTimeout(() => {
+          toast.error("You don't have enough reward points!", { autoClose: 2000 });
+        }, 0);
+        return prev;
+      }
+
+      if (idx === -1 && deltaQty > 0) return [...prev, { ...reward, qty: deltaQty }];
+      if (newQty <= 0) return prev.filter(r => r.product_id !== reward.product_id);
+
+      const updated = { ...prev[idx], qty: newQty };
+      return [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
+    });
+  };
+
+  const updateRewardQty = (product_id: number, qty: number) => {
+    setRewards(prev => {
+      const idx = prev.findIndex(r => r.product_id === product_id);
+      if (idx === -1) return prev;
+      if (qty <= 0) {
+        const newItems = prev.filter(r => r.product_id !== product_id);
+        setTotalPoints(recalcTotalPoints(newItems));
+        return newItems;
+      }
+      const updated = { ...prev[idx], qty };
+      const newItems = [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
+      setTotalPoints(recalcTotalPoints(newItems));
+      return newItems;
+    });
+  };
+
+  const removeReward = (product_id: number) => {
+    setRewards(prev => {
+      const newItems = prev.filter(r => r.product_id !== product_id);
+      setTotalPoints(recalcTotalPoints(newItems));
+      return newItems;
+    });
+  };
+
+  // --- PLACE ORDER ---
   const placeOrder = async () => {
     let addressToSend: Address | null = null;
-
     if (selectedAddress === "current") {
       if (!currentAddress.coordinates) {
         toast.error("Current address coordinates not set!");
         return;
       }
-
-      // Get short address using Google API
-      const short_address = await getShortAddress(
-        currentAddress.coordinates.lat,
-        currentAddress.coordinates.lng
-      );
-
+      const short_address = await getShortAddress(currentAddress.coordinates.lat, currentAddress.coordinates.lng);
       addressToSend = { ...currentAddress, short_address };
     } else {
       addressToSend = selectedAddress as Address;
@@ -139,48 +208,66 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
       address: selectedAddress === "current" ? addressToSend : undefined,
       address_type: selectedAddress === "current" ? "current" : "saved",
       paymentMethod,
-      total_qty: cart.reduce((sum, item) => sum + item.qty, 0),
+      total_qty: cart.reduce((sum, i) => sum + i.qty, 0),
       total,
-      items: cart.map(item => ({
-        product_id: item.id,
-        qty: item.qty,
-        price_at_order: item.price,
-        total_line: Number((item.qty * item.price).toFixed(2)),
-        image_url: (item.image ?? "").split("/").pop(),
+      items: cart.map(i => ({
+        product_id: i.id,
+        qty: i.qty,
+        price_at_order: i.price,
+        total_line: Number((i.price * i.qty).toFixed(2)),
+        image_url: (i.image ?? "").split("/").pop(),
       })),
     };
 
-    console.log(payload)
-
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/store-order`,
-        payload,
-        { withCredentials: true, headers: { Accept: "application/json" } }
-      );
-
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/store-order`, payload, {
+        withCredentials: true,
+        headers: { Accept: "application/json" },
+      });
       if (res.data?.success) {
         toast.success("Order placed successfully!");
-
-        const telegram_start_link = res.data.telegram_start_link;
-
-        // Redirect to success page + pass Telegram link
-        router.push(`/checkout/order-success?telegram=${encodeURIComponent(telegram_start_link)}`);
+        setCart([]);
+        setTotal(0);
+        router.push(`/checkout/order-success`);
       }
-
-
     } catch (err: any) {
-      if (err.response) {
-        console.error("❌ API ERROR:", err.response.data);
-        toast.error(err.response.data.message || "Order failed.");
-      } else {
-        console.error("🔥 NETWORK ERROR:", err);
-        toast.error("Network error. Please try again.");
-      }
+      toast.error("Order failed. Please try again.");
+      console.error(err);
     }
   };
 
+  // --- PLACE REWARD ORDER ---
+  const placeRewardOrder = async () => {
+    if (rewards.length === 0) {
+      toast.error("No reward products selected!");
+      return;
+    }
+    const payload = {
+      api_user_id: user?.id,
+      total_points: totalPoints,
+      items: rewards.map(r => ({
+        product_id: r.product_id,
+        qty: r.qty,
+        points_at_reward: r.points_at_reward,
+      })),
+    };
 
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/store-reward-order`, payload, {
+        withCredentials: true,
+        headers: { Accept: "application/json" },
+      });
+      if (res.data?.success) {
+        toast.success("Reward order placed successfully!");
+        setRewards([]);
+        setTotalPoints(0);
+        router.push(`/checkout/reward-success`);
+      }
+    } catch (err: any) {
+      toast.error("Reward order failed. Please try again.");
+      console.error(err);
+    }
+  };
 
   return (
     <CheckoutContext.Provider
@@ -190,6 +277,11 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         updateItemQty,
         removeItem,
+        rewards,
+        totalPoints,
+        addReward,
+        updateRewardQty,
+        removeReward,
         selectedAddress,
         setSelectedAddress,
         currentAddress,
@@ -197,6 +289,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         paymentMethod,
         setPaymentMethod,
         placeOrder,
+        placeRewardOrder,
       }}
     >
       {children}
