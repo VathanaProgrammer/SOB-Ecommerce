@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   // images: {
   //   domains: ["example.com"], // add image host domains
   // },
+  basePath: "/order",
 
   images: {
     domains: ["127.0.0.1", "localhost"],
