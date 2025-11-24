@@ -1,8 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { RewardProduct } from "@/context/CheckOutContext";
-
+import { RewardProduct } from "../RewardSection";
 interface RewardCardProps {
     product: RewardProduct;
 }

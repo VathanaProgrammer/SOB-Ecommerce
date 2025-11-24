@@ -12,7 +12,7 @@ export interface FeaturedProduct {
 
 interface FeaturedSectionProps {
   products: FeaturedProduct[];
-  onAdd?: (id: number) => void;
+  onAdd?: (product: { id: number; title: string; price: number }, qty: number) => void;
 }
 
 const FeaturedSection: React.FC<FeaturedSectionProps> = ({ products, onAdd }) => {
@@ -27,8 +27,9 @@ const FeaturedSection: React.FC<FeaturedSectionProps> = ({ products, onAdd }) =>
             title={item.name}
             price={item.price}
             image={item.image_url}
-            badge="★"
-            onAdd={onAdd}
+            onAdd={(id, qty) =>
+              onAdd?.({ id: item.id, title: item.name, price: item.price }, qty)
+            }
           />
         ))}
       </div>
