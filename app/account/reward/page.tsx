@@ -30,9 +30,9 @@ const Reward: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full gap-6">
-      <Header title="Reward History" />
+      <Header title="Your Reward" />
 
-      <h2 className="text-2xl font-semibold text-gray-800">Your Rewards</h2>
+      <h2 className="text-2xl font-semibold text-gray-800">Your Rewards Histories</h2>
       <p className="text-gray-500 mb-4">
         Here is the detailed history of your earned and redeemed rewards.
       </p>

@@ -23,7 +23,8 @@ export default function LayoutWrapper({
     "/verify-otp",
     "/checkout/address",
     '/account/shipping-address',
-    '/checkout/order-success'
+    '/checkout/order-success',
+    '/account/reward'
   ];
 
   const hideTopBar = noTopBarRoutes.includes(pathname);
