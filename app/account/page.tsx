@@ -52,6 +52,7 @@ const Page: React.FC = () => {
       title: "Rewards",
       desc: "Check available coupons and loyalty points.",
       action: "View Rewards",
+      route: '/account/reward'
     },
     {
       icon: "mdi:lock-outline",
