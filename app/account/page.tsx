@@ -12,7 +12,7 @@ const Page: React.FC = () => {
   const router = useRouter();
   const [profileImage, setProfileImage] = useState<string>(
     user?.image_url ||
-      "https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"
+    "https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"
   );
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +48,12 @@ const Page: React.FC = () => {
       action: "View Orders",
     },
     {
+      icon: "lucide:database",
+      title: "Rewards",
+      desc: "Check available coupons and loyalty points.",
+      action: "View Rewards",
+    },
+    {
       icon: "mdi:lock-outline",
       title: "Security",
       desc: "Change password or review login activity.",
@@ -60,12 +66,6 @@ const Page: React.FC = () => {
       action: "Manage Preferences",
     },
     {
-      icon: "lucide:database",
-      title: "Rewards",
-      desc: "Check available coupons and loyalty points.",
-      action: "View Rewards",
-    },
-    {
       icon: "mdi:cog-outline",
       title: "Account Settings",
       desc: "Language, currency, and delete account options.",
@@ -73,12 +73,12 @@ const Page: React.FC = () => {
     },
   ];
 
-useEffect(() => {
-  if (user?.image_url) {
-    const timeout = setTimeout(() => setProfileImage(user.image_url || "https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"), 0);
-    return () => clearTimeout(timeout);
-  }
-}, [user?.image_url]);
+  useEffect(() => {
+    if (user?.image_url) {
+      const timeout = setTimeout(() => setProfileImage(user.image_url || "https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"), 0);
+      return () => clearTimeout(timeout);
+    }
+  }, [user?.image_url]);
 
   return (
     <div className="flex flex-col items-center min-h-screen">
@@ -151,7 +151,7 @@ useEffect(() => {
                 <h3 className="font-medium text-gray-800">{item.title}</h3>
               </div>
               <p className="text-sm text-gray-500">{item.desc}</p>
-              <button onClick={() => router.push(item.route? item.route : '')} className="mt-2 text-sm font-medium text-blue-600 hover:underline self-start">
+              <button onClick={() => router.push(item.route ? item.route : '')} className="mt-2 text-sm font-medium text-blue-600 hover:underline self-start">
                 {item.action}
               </button>
             </div>
